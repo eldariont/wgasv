@@ -22,6 +22,7 @@ sudo apt install -y libssl-dev
 sudo apt install -y docker.io
 sudo usermod -aG docker $USER
 sudo apt install -y last-align
+sudo apt install -y snakemake
 printf "\n\nNeed to log out then in for Docker to work!!\n\n"
 
 mkdir /ebs1
@@ -124,9 +125,14 @@ perl Build.PL
 ./Build test
 sudo ./Build install
 
+cd /ebs1
+curl -L https://github.com/attractivechaos/k8/releases/download/v0.2.4/k8-0.2.4.tar.bz2 | tar -jxf -
+cp k8-0.2.4/k8-Linux minimap2/k8
+
 export PATH="/ebs1/vcflib/bin:$PATH"
 export PATH="/ebs1/seqwish/bin:$PATH"
 export PATH="/ebs1/minimap2:$PATH"
+export PATH="/ebs1/minimap2/misc:$PATH"
 export PATH="/ebs1/bcftools:$PATH"
 export PATH="/ebs1/hal2vg:$PATH"
 export PATH="/ebs1/repeatMaskerPipeline:$PATH"
