@@ -17,3 +17,7 @@ sudo apt install -y libssl-dev
 #sudo usermod -aG docker $USER
 sudo apt install -y last-align
 sudo apt install -y snakemake
+cd /ebs1/vg
+make get-deps
+
+cp ~/wgasv/.bashrc ~/
