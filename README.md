@@ -9,7 +9,7 @@ Worflow is as follows:
 * Launch the instance. Once it's running, add the Owner and Name tags from the instances menu. 
 * Copy the instance's public IP from the Description part of the instance information (when clicking on it).
 
-Once the instance is successfully create:
+Once the instance is successfully created:
 ```
 ssh ubuntu@<public ip>
 git clone https://github.com/glennhickey/wgasv.git
@@ -20,8 +20,11 @@ cd cloud
 ./setup-volumes-i3.4xlarge.sh
 # make sure the df output looks sensible
 
-# install the software
-./setup-cloud.sh
+# if /ebs1 volume is already set up
+./setup-instance.sh
+
+# if /ebs1 volume is empty
+./setup-cloud
 ```
 From here on, you need to make sure you're using somewhere on `/data1/` or `/data2/` for scratch space and general storage.  You may need to run something like `sudo chmod -R 777 /data/1` to get permissions.  
 
