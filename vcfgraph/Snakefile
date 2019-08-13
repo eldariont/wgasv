@@ -1,49 +1,28 @@
 SAMPS = "CHM13 GM24143 GM24149 GM24385 HG00733 HG01109 HG01243 HG02055 HG02080 HG02723 HG03098 HG03492".split()
 
-include: "rules/subset_chr.smk"
-include: "rules/call_variants.smk"
+include: "rules/01_subset_chr.smk"
+include: "rules/02_call_variants.smk"
+include: "rules/03_construct_graph.smk"
 
+configfile: "rules/config.yaml"
 
 rule all:
     input:
-        "graph/chr10.asm20.gcsa",
-        "graph/chr10.asm20.xg"
+        expand("alignments/{sample}.gam", sample=config["samples"])
 
-rule construct_graph:
+
+def get_samples(wildcards):
+    return config["samples"][wildcards.sample]
+
+
+rule vg_map:
     input:
-        fasta="assemblies_chr10/hg38_chr10.fa",
-        vcf="paftools_output/merged.chr10.asm20.final.vcf.gz",
-        tbi="paftools_output/merged.chr10.asm20.final.vcf.gz.tbi"
+        forward = "reads/HG002_HiSeq300x_fastq/{library}/Project_RM8391_RM8392/{sample}/{lane}_R1_{number}.fastq.gz",
+        reverse = "reads/HG002_HiSeq300x_fastq/{library}/Project_RM8391_RM8392/{sample}/{lane}_R2_{number}.fastq.gz",
+        xg = "graph/chr10.asm20.xg",
+        gcsa = "graph/chr10.asm20.gcsa"
     output:
-        vg="graph/chr10.asm20.vg"
+        "alignments/{library}.{sample}.{lane}.{number}.gam"
+    threads: 7
     shell:
-        "vg construct -r {input.fasta} -v {input.vcf} -S -a -f -p > {output}"
-
-
-rule split_nodes:
-    input:
-        "graph/chr10.asm20.vg"
-    output:
-        "graph/chr10.asm20.chop32.vg"
-    shell:
-        "vg mod -X 32 {input} > {output}"
-
-
-rule index_gcsa:
-    input:
-        "graph/chr10.asm20.chop32.vg"
-    output:
-        "graph/chr10.asm20.gcsa"
-    params:
-        temp_dir="/data1/temp"
-    shell:
-        "vg index -g {output} -k 11 -p -b {params.temp_dir} {input}"
-
-
-rule index_xg:
-    input:
-        "graph/chr10.asm20.chop32.vg"
-    output:
-        "graph/chr10.asm20.xg"
-    shell:
-        "vg index -x {output} {input}"
+        "vg map -t {threads} -x {input.xg} -g {input.gcsa} -f {input.forward} -f {input.reverse} > {output}"
